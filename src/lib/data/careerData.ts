@@ -150,7 +150,8 @@ export const timelineItems: TimelineItem[] = [
     techStack: ["Python", "Flask", "JavaScript", "DuckDB", "SQL", "Pandas"],
     achievements: [],
     links: [{ label: "Company", url: "https://www.loblaw.ca" }],
-    summary: "Description coming soon.",
+    summary:
+      "Revitalized Loblaw's supply chain reporting by migrating MS Access workflows to a high-performance Pandas/DuckDB stack and optimizing complex business logic. Re-engineered a legacy PHP codebase using Flask, Jinja, and JavaScript, delivering an optimized reporting dashboard that improved data visibility and operational efficiency for key business stakeholders. ", shortDescription: "Supply Chain Optimization.",
     primaryUrl: "https://www.loblaw.ca",
   },
   // ── Track 2: Projects ──
@@ -169,7 +170,7 @@ export const timelineItems: TimelineItem[] = [
     achievements: [
       "Developed a gamified habit tracker with Cohere personalization + AsyncStorage.",
     ],
-    primaryUrl: "#",
+    primaryUrl: "https://github.com/nivvy-is-not-a-git/Habit-Tracker",
   },
   {
     id: "proj-collabify",
@@ -186,8 +187,8 @@ export const timelineItems: TimelineItem[] = [
     achievements: [
       "Collaborative playlist voting app powered by the Spotify Web API with OAuth 2.0 PKCE auth",
     ],
-    links: [{ label: "GitHub", url: "#" }],
-    primaryUrl: "#",
+    links: [{ label: "GitHub", url: "https://github.com/nivvy-is-not-a-git/Collabify" }],
+    primaryUrl: "https://github.com/nivvy-is-not-a-git/Collabify",
   },
   {
     id: "proj-lifeline",
@@ -204,8 +205,8 @@ export const timelineItems: TimelineItem[] = [
     achievements: [
       "Real-time disaster response platform with a Three.js globe, Solana transactions, and Gemini AI intel",
     ],
-    links: [{ label: "GitHub", url: "#" }],
-    primaryUrl: "#",
+    links: [{ label: "GitHub", url: "https://github.com/nivvy-is-not-a-git/Lifeline" }],
+    primaryUrl: "https://github.com/nivvy-is-not-a-git/Collabify",
   },
   {
     id: "proj-seatbelt",

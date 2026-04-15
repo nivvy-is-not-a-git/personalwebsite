@@ -14,7 +14,7 @@ export default function PluginsSidebar() {
       {/* Header */}
       <div className="flex items-center gap-2 px-3 py-2 border-b border-grid">
         <span className="text-sm">&#128194;</span>
-        <span className="text-xs font-mono text-secondary font-bold tracking-wide uppercase">
+        <span className="text-xs font-mono text-white font-bold tracking-wide uppercase">
           Plugins
         </span>
       </div>
@@ -41,7 +41,7 @@ export default function PluginsSidebar() {
                   &#9654;
                 </span>
                 <span className="text-xs">&#128194;</span>
-                <span className="text-xs font-mono text-secondary">
+                <span className="text-xs font-mono text-white">
                   {category.label}
                 </span>
               </button>
@@ -63,8 +63,10 @@ export default function PluginsSidebar() {
                           key={skill.name}
                           className="flex items-center gap-2 pl-9 pr-3 py-1 hover:bg-elevated/60 transition-colors cursor-default"
                         >
-                          <span className="text-[10px] text-cyan/60">&#9835;</span>
-                          <span className="text-[11px] font-mono text-primary/80">
+                          <span className="text-[10px] text-cyan/60">
+                            &#9835;
+                          </span>
+                          <span className="text-[11px] font-mono text-white">
                             {skill.name}
                           </span>
                           <span
@@ -100,7 +102,7 @@ export default function PluginsSidebar() {
 
       {/* Footer */}
       <div className="px-3 py-2 border-t border-grid">
-        <div className="text-[10px] font-mono text-muted">
+        <div className="text-[10px] font-mono text-white">
           {skillCategories.reduce((n, c) => n + c.items.length, 0)} plugins
           loaded
         </div>
@@ -138,7 +140,7 @@ function EducationFolder() {
           &#9654;
         </span>
         <span className="text-xs">&#127891;</span>
-        <span className="text-xs font-mono text-secondary">Education</span>
+        <span className="text-xs font-mono text-white">Education</span>
       </button>
 
       <AnimatePresence initial={false}>
@@ -156,7 +158,7 @@ function EducationFolder() {
                 className="flex items-center gap-2 pl-9 pr-3 py-1 hover:bg-elevated/60 transition-colors cursor-default"
               >
                 <span className="text-[10px]">{item.icon}</span>
-                <span className="text-[11px] font-mono text-primary/80 truncate">
+                <span className="text-[11px] font-mono text-white truncate">
                   {item.label}
                 </span>
               </div>

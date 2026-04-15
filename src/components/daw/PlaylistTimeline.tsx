@@ -364,7 +364,7 @@ export default function PlaylistTimeline() {
                   key={i}
                   className="flex-1 border-r border-grid flex items-center justify-center"
                 >
-                  <span className="text-[9px] font-mono text-dim tabular-nums select-none">
+                  <span className="text-[9px] font-mono text-white tabular-nums select-none">
                     {i + 1}
                   </span>
                 </div>
@@ -453,7 +453,7 @@ function TrackLabel({
 
   return (
     <div
-      className="px-2 text-[10px] font-mono text-secondary border-b border-grid flex flex-col items-start justify-center gap-1 shrink-0"
+      className="px-2 text-[10px] font-mono text-white border-b border-grid flex flex-col items-start justify-center gap-1 shrink-0"
       style={{
         height: TRACK_ROW_HEIGHT,
         opacity: isMuted ? 0.35 : 1,
@@ -468,7 +468,7 @@ function TrackLabel({
         className={`px-1 py-0.5 text-[8px] font-bold rounded border transition-colors ${
           isMuted
             ? "bg-led-red/20 border-led-red/50 text-led-red"
-            : "bg-transparent border-grid text-muted hover:text-secondary hover:border-secondary"
+            : "bg-transparent border-grid text-white hover:text-white hover:border-white"
         }`}
         aria-label={`${isMuted ? "Unmute" : "Mute"} ${label}`}
       >
@@ -548,11 +548,7 @@ function TrackContent({
           <motion.button
             key={item.id}
             onClick={() => {
-              const hasDetail =
-                item.track === "experience" &&
-                !!item.shortDescription &&
-                !!item.summary;
-              selectItemWithView(item.id, hasDetail);
+              selectItemWithView(item.id, false);
             }}
             className={`absolute top-2 bottom-2 rounded cursor-pointer border transition-colors ${
               isWaveform ? "waveform-texture" : ""
@@ -560,6 +556,7 @@ function TrackContent({
             style={{
               left: `${leftPct}%`,
               width: `${widthPct}%`,
+              minWidth: "max-content",
               backgroundColor: isActive
                 ? `${item.color}${bgAlpha}`
                 : isSelected
@@ -607,9 +604,10 @@ function TrackContent({
                 )}
               </div>
               <div
-                className="text-[9px] font-mono text-secondary/70 truncate"
+                className="text-[9px] font-mono truncate"
                 style={{
-                  opacity: isActive && hasActiveOverlap ? 0.3 + glowIntensity * 0.7 : 1,
+                  color: item.color,
+                  opacity: isActive && hasActiveOverlap ? 0.2 + glowIntensity * 0.6 : 0.8,
                   transition: "opacity 0.15s",
                 }}
               >

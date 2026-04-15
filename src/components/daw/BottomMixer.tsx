@@ -82,7 +82,7 @@ export default function BottomMixer() {
       <div className="flex flex-1 min-h-0">
         {/* EQ Rack */}
         <div className="w-1/2 md:w-2/5 border-r border-grid p-3 flex flex-col">
-          <div className="text-[10px] font-mono text-muted mb-2 tracking-wider uppercase">
+          <div className="text-[10px] font-mono text-white mb-2 tracking-wider uppercase">
             EQ Rack
           </div>
           <EQRack bands={bands} />
@@ -123,9 +123,7 @@ export default function BottomMixer() {
                 max={1}
                 step={0.01}
                 value={crossfaderValue}
-                onChange={(e) =>
-                  setCrossfaderValue(parseFloat(e.target.value))
-                }
+                onChange={(e) => setCrossfaderValue(parseFloat(e.target.value))}
                 className="crossfader-slider w-full relative z-10"
                 aria-label="Crossfader"
                 style={
@@ -215,7 +213,7 @@ function EQRack({
             />
           </div>
           <div
-            className="text-[7px] md:text-[8px] font-mono mt-1.5 truncate w-full text-center"
+            className="text-[9px] md:text-[10px] font-mono mt-1.5 truncate w-full text-center"
             style={{ color: band.color }}
           >
             {band.name}
@@ -246,7 +244,9 @@ function PatchNotes({
   }
 
   if (!hasOverlap) {
-    return <PatchNotesContent key={displayItem.id} item={displayItem} opacity={1} />;
+    return (
+      <PatchNotesContent key={displayItem.id} item={displayItem} opacity={1} />
+    );
   }
 
   return (
@@ -260,7 +260,11 @@ function PatchNotes({
           transition={{ duration: 0.2 }}
           className="absolute inset-0 overflow-y-auto flex flex-col"
         >
-          <PatchNotesContent key={displayItem.id} item={displayItem} opacity={1} />
+          <PatchNotesContent
+            key={displayItem.id}
+            item={displayItem}
+            opacity={1}
+          />
         </motion.div>
       </AnimatePresence>
     </div>
@@ -276,11 +280,15 @@ function PatchNotesContent({
 }) {
   const patchNotesView = useUIStore((s) => s.patchNotesView);
   const setPatchNotesView = useUIStore((s) => s.setPatchNotesView);
-  const hasDetail = item.track === "experience" && !!item.shortDescription && !!item.summary;
+  const hasDetail =
+    item.track === "experience" && !!item.shortDescription && !!item.summary;
   const view = hasDetail ? patchNotesView : "main";
 
   return (
-    <div className="flex-1 min-h-0 relative overflow-hidden" style={{ opacity }}>
+    <div
+      className="flex-1 min-h-0 relative overflow-hidden"
+      style={{ opacity }}
+    >
       <AnimatePresence initial={false} mode="wait">
         {view === "main" ? (
           <motion.div
@@ -291,71 +299,122 @@ function PatchNotesContent({
             transition={{ duration: 0.2, ease: "easeInOut" }}
             className="absolute inset-0 overflow-y-auto space-y-2"
           >
-            <div className="text-[10px] font-mono text-muted mb-2 tracking-wider uppercase">
-              Patch Notes
-            </div>
-            <div>
-              {item.primaryUrl ? (
-                <a
-                  href={item.primaryUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm font-mono font-bold hover:underline underline-offset-2"
-                  style={{ color: item.color }}
-                >
-                  {item.title}
-                </a>
-              ) : (
-                <h3
-                  className="text-sm font-mono font-bold"
-                  style={{ color: item.color }}
-                >
-                  {item.title}
-                </h3>
+            <div
+              role={hasDetail ? "button" : undefined}
+              tabIndex={hasDetail ? 0 : undefined}
+              aria-label={
+                hasDetail
+                  ? `View details for ${item.title} at ${item.subtitle}`
+                  : undefined
+              }
+              onClick={
+                hasDetail ? () => setPatchNotesView("detail") : undefined
+              }
+              onKeyDown={
+                hasDetail
+                  ? (e: React.KeyboardEvent) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setPatchNotesView("detail");
+                      }
+                    }
+                  : undefined
+              }
+              className={
+                hasDetail
+                  ? "cursor-pointer group min-h-full rounded-md border px-2 py-1.5 transition-all duration-150 shadow-[0_2px_8px_rgba(0,0,0,0.35)] hover:-translate-y-0.5 hover:shadow-[0_6px_16px_rgba(0,0,0,0.45)] active:translate-y-0 active:scale-[0.985] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-offset-0"
+                  : "min-h-full"
+              }
+              style={
+                hasDetail
+                  ? {
+                      outline: "none",
+                      borderColor: `${item.color}55`,
+                      backgroundColor: `${item.color}0d`,
+                      boxShadow: `0 2px 8px rgba(0,0,0,0.35), inset 0 0 0 1px ${item.color}22`,
+                    }
+                  : undefined
+              }
+            >
+              {hasDetail && (
+                <div className="mb-2">
+                  <span
+                    className="opacity-80 group-hover:opacity-100 group-focus:opacity-100 transition-opacity text-[9px] font-mono uppercase tracking-wider"
+                    style={{ color: item.color }}
+                  >
+                    Click for details →
+                  </span>
+                </div>
               )}
-              <p className="text-[11px] font-mono text-secondary">
-                {item.subtitle}
-                {item.shortDescription && (
-                  <> &middot; <span style={{ color: item.color, opacity: 0.75 }}>{item.shortDescription}</span></>
+              <div>
+                {item.primaryUrl ? (
+                  <a
+                    href={item.primaryUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-mono font-bold hover:underline underline-offset-2"
+                    style={{ color: item.color }}
+                    onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                  >
+                    {item.title}
+                  </a>
+                ) : (
+                  <h3
+                    className="text-sm font-mono font-bold"
+                    style={{ color: item.color }}
+                  >
+                    {item.title}
+                  </h3>
                 )}
-                {" "}&middot; {item.period}
-              </p>
+                <p className="text-[11px] font-mono text-white mt-1">
+                  {item.subtitle}
+                  {item.shortDescription && (
+                    <>
+                      {" "}
+                      &middot;{" "}
+                      <span style={{ color: item.color, opacity: 0.75 }}>
+                        {item.shortDescription}
+                      </span>
+                    </>
+                  )}{" "}
+                  &middot; {item.period}
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-1 mt-1.5">
+                {item.techStack.map((tech) => (
+                  <span
+                    key={tech}
+                    className="px-1.5 py-0.5 text-[9px] font-mono rounded border"
+                    style={{
+                      color: item.color,
+                      borderColor: `${item.color}40`,
+                      backgroundColor: `${item.color}10`,
+                    }}
+                  >
+                    {tech}
+                  </span>
+                ))}
+              </div>
+
+              {!hasDetail && item.summary && item.achievements.length === 0 && (
+                <p className="text-[10px] md:text-[11px] font-mono text-white/60 italic mt-1.5">
+                  {item.summary}
+                </p>
+              )}
+
+              <ul className="space-y-1 mt-1.5">
+                {item.achievements.map((ach, i) => (
+                  <li
+                    key={i}
+                    className="text-[10px] md:text-[11px] font-mono text-white leading-relaxed flex gap-1.5"
+                  >
+                    <span className="text-muted shrink-0">&rsaquo;</span>
+                    <span>{ach}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-
-            <div className="flex flex-wrap gap-1">
-              {item.techStack.map((tech) => (
-                <span
-                  key={tech}
-                  className="px-1.5 py-0.5 text-[9px] font-mono rounded border"
-                  style={{
-                    color: item.color,
-                    borderColor: `${item.color}40`,
-                    backgroundColor: `${item.color}10`,
-                  }}
-                >
-                  {tech}
-                </span>
-              ))}
-            </div>
-
-            {!hasDetail && item.summary && item.achievements.length === 0 && (
-              <p className="text-[10px] md:text-[11px] font-mono text-secondary/60 italic">
-                {item.summary}
-              </p>
-            )}
-
-            <ul className="space-y-1">
-              {item.achievements.map((ach, i) => (
-                <li
-                  key={i}
-                  className="text-[10px] md:text-[11px] font-mono text-secondary leading-relaxed flex gap-1.5"
-                >
-                  <span className="text-muted shrink-0">&rsaquo;</span>
-                  <span>{ach}</span>
-                </li>
-              ))}
-            </ul>
-
           </motion.div>
         ) : (
           <motion.div
@@ -369,7 +428,7 @@ function PatchNotesContent({
             {/* Back button */}
             <button
               onClick={() => setPatchNotesView("main")}
-              className="flex items-center gap-1 text-[9px] font-mono text-muted hover:text-secondary transition-colors self-start"
+              className="flex items-center gap-1 text-[9px] font-mono text-muted hover:text-white transition-colors self-start"
             >
               <span>←</span>
               <span>{item.subtitle}</span>
@@ -384,7 +443,7 @@ function PatchNotesContent({
             </h3>
 
             {/* Full description */}
-            <p className="text-[10px] md:text-[11px] font-mono text-secondary/70 leading-relaxed">
+            <p className="text-[10px] md:text-[11px] font-mono text-white/70 leading-relaxed">
               <HighlightedText
                 text={item.summary ?? ""}
                 keywords={item.techStack}
@@ -419,7 +478,7 @@ function HighlightedText({
     <>
       {parts.map((part, i) => {
         const isKeyword = keywords.some(
-          (k) => k.toLowerCase() === part.toLowerCase()
+          (k) => k.toLowerCase() === part.toLowerCase(),
         );
         return isKeyword ? (
           <span key={i} style={{ color, fontWeight: 600 }}>

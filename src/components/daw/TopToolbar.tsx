@@ -151,7 +151,7 @@ function BPMDisplay() {
 
   return (
     <div className="flex items-center gap-0 rounded border border-grid overflow-hidden font-mono">
-      <span className="text-[10px] font-bold tracking-wider text-secondary bg-surface px-2 py-1.5 border-r border-grid select-none">
+      <span className="text-[10px] font-bold tracking-wider text-white bg-surface px-2 py-1.5 border-r border-grid select-none">
         BPM
       </span>
       <div
@@ -242,9 +242,9 @@ function TransportButton({
   };
 
   const colorMap: Record<string, { idle: string; active: string }> = {
-    stop: { idle: "text-muted hover:text-secondary", active: "text-secondary" },
+    stop: { idle: "text-muted hover:text-white", active: "text-white" },
     play: { idle: "text-muted hover:text-lime", active: "text-lime" },
-    pause: { idle: "text-muted hover:text-secondary", active: "text-cyan" },
+    pause: { idle: "text-muted hover:text-white", active: "text-cyan" },
   };
 
   const colors = colorMap[icon];
