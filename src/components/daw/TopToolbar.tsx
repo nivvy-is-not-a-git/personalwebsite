@@ -98,8 +98,7 @@ export default function TopToolbar() {
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-1.5">
           <TransportButton icon="stop" onClick={stop} active={transportState === "stopped"} />
-          <TransportButton icon="play" onClick={handlePlay} active={transportState === "playing"} />
-          <TransportButton icon="pause" onClick={pause} active={transportState === "paused"} />
+          <TransportButton icon={transportState === "playing" ? "pause" : "play"} onClick={handlePlay} active={transportState === "playing" || transportState === "paused"} />
           <RecordButton onClick={handleRecord} recordState={recordState} />
         </div>
 

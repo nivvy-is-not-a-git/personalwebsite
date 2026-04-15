@@ -379,7 +379,6 @@ export default function PlaylistTimeline() {
                   items={[item]}
                   trackKey={item.id}
                   selectedItemId={selectedItemId}
-                  onSelect={selectItem}
                   isWaveform={item.track === "projects"}
                   gridCols={TOTAL_GRID_COLS}
                 />
@@ -484,20 +483,19 @@ function TrackContent({
   items,
   trackKey,
   selectedItemId,
-  onSelect,
   isWaveform,
   gridCols,
 }: {
   items: typeof timelineItems;
   trackKey: string;
   selectedItemId: string | null;
-  onSelect: (id: string) => void;
   isWaveform: boolean;
   gridCols: number;
 }) {
   const mutedTracks = useUIStore((s) => s.mutedTracks);
   const activeItemIds = useUIStore((s) => s.activeItemIds);
   const crossfaderValue = useUIStore((s) => s.crossfaderValue);
+  const selectItemWithView = useUIStore((s) => s.selectItemWithView);
   const isMuted = !!mutedTracks[trackKey];
 
   const hasActiveOverlap = activeItemIds.length > 1;
@@ -549,7 +547,13 @@ function TrackContent({
         return (
           <motion.button
             key={item.id}
-            onClick={() => onSelect(item.id)}
+            onClick={() => {
+              const hasDetail =
+                item.track === "experience" &&
+                !!item.shortDescription &&
+                !!item.summary;
+              selectItemWithView(item.id, hasDetail);
+            }}
             className={`absolute top-2 bottom-2 rounded cursor-pointer border transition-colors ${
               isWaveform ? "waveform-texture" : ""
             } ${isSelected ? item.selectedGlowClass : ""}`}
@@ -581,18 +585,26 @@ function TrackContent({
           >
             <div className="px-2 py-1 overflow-hidden h-full flex flex-col justify-center">
               <div
-                className={`text-[10px] md:text-[11px] font-mono font-bold truncate ${item.primaryUrl ? "hover:underline underline-offset-2" : ""}`}
+                className="text-[10px] md:text-[11px] font-mono font-bold truncate"
                 style={{
-                  color: item.color,
                   opacity: isActive && hasActiveOverlap ? 0.4 + glowIntensity * 0.6 : 1,
                   transition: "opacity 0.15s",
                 }}
-                onClick={item.primaryUrl ? (e) => {
-                  e.stopPropagation();
-                  window.open(item.primaryUrl!, "_blank", "noopener,noreferrer");
-                } : undefined}
               >
-                {item.title}
+                {item.primaryUrl ? (
+                  <span
+                    className="hover:underline underline-offset-2 cursor-pointer"
+                    style={{ color: item.color }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open(item.primaryUrl!, "_blank", "noopener,noreferrer");
+                    }}
+                  >
+                    {item.title}
+                  </span>
+                ) : (
+                  <span style={{ color: item.color }}>{item.title}</span>
+                )}
               </div>
               <div
                 className="text-[9px] font-mono text-secondary/70 truncate"

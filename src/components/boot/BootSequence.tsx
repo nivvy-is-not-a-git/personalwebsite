@@ -23,6 +23,7 @@ const FLASH_DURATION = 0.15;
 export default function BootSequence() {
   const containerRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
+  const flashRef = useRef<HTMLDivElement>(null);
   const setPowerState = useUIStore((s) => s.setPowerState);
   const setScreenView = useUIStore((s) => s.setScreenView);
   const bootTarget = useUIStore((s) => s.bootTarget);
@@ -44,26 +45,22 @@ export default function BootSequence() {
       return;
     }
 
-    // Flicker the screen on
+    // CRT power-on expansion
     const el = containerRef.current;
+    const flashEl = flashRef.current;
     if (!el) return;
 
     const tl = gsap.timeline();
 
-    // Initial flicker
-    tl.fromTo(
-      el,
-      { opacity: 0 },
-      { opacity: 1, duration: 0.08, ease: "power1.in" }
-    )
-      .to(el, { opacity: 0.3, duration: 0.05 })
-      .to(el, { opacity: 1, duration: 0.06 })
-      .to(el, { opacity: 0.6, duration: 0.04 })
-      .to(el, { opacity: 1, duration: 0.08 });
+    // Screen starts as a bright horizontal line, expands vertically
+    tl.set(el, { scaleY: 0.008, scaleX: 1, opacity: 1, transformOrigin: "center center" })
+      .to(el, { scaleY: 1, duration: 0.2, ease: "power3.out" })
+      .to(flashEl, { opacity: 1, duration: 0.06, ease: "power2.in" })
+      .to(flashEl, { opacity: 0, duration: 0.1, ease: "power2.out" });
 
     // Type out BIOS lines
     const lineTimers: ReturnType<typeof setTimeout>[] = [];
-    const flickerEnd = 300; // approx ms after flicker completes
+    const flickerEnd = 420; // ms after CRT expansion + flash completes
 
     BOOT_LINES.forEach((_, i) => {
       const timer = setTimeout(() => {
@@ -110,6 +107,12 @@ export default function BootSequence() {
       className="absolute inset-0 bg-[#0a0a0a] flex flex-col justify-center px-6 md:px-12 font-mono text-xs md:text-sm"
       style={{ opacity: 0 }}
     >
+      {/* CRT flash overlay */}
+      <div
+        ref={flashRef}
+        className="absolute inset-0 bg-white pointer-events-none"
+        style={{ opacity: 0, zIndex: 10 }}
+      />
       {/* BIOS text */}
       <div className="space-y-1 text-lime mb-6">
         {BOOT_LINES.slice(0, visibleLines).map((line, i) => (

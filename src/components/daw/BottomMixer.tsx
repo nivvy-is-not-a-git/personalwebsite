@@ -90,9 +90,6 @@ export default function BottomMixer() {
 
         {/* Patch Notes */}
         <div className="flex-1 p-3 flex flex-col overflow-hidden">
-          <div className="text-[10px] font-mono text-muted mb-2 tracking-wider uppercase">
-            Patch Notes
-          </div>
           <PatchNotes
             items={items}
             activeSegment={activeSegment}
@@ -249,7 +246,7 @@ function PatchNotes({
   }
 
   if (!hasOverlap) {
-    return <PatchNotesContent item={displayItem} opacity={1} />;
+    return <PatchNotesContent key={displayItem.id} item={displayItem} opacity={1} />;
   }
 
   return (
@@ -261,9 +258,9 @@ function PatchNotes({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -6 }}
           transition={{ duration: 0.2 }}
-          className="absolute inset-0 overflow-y-auto"
+          className="absolute inset-0 overflow-y-auto flex flex-col"
         >
-          <PatchNotesContent item={displayItem} opacity={1} />
+          <PatchNotesContent key={displayItem.id} item={displayItem} opacity={1} />
         </motion.div>
       </AnimatePresence>
     </div>
@@ -277,82 +274,161 @@ function PatchNotesContent({
   item: TimelineItem;
   opacity: number;
 }) {
+  const patchNotesView = useUIStore((s) => s.patchNotesView);
+  const setPatchNotesView = useUIStore((s) => s.setPatchNotesView);
+  const hasDetail = item.track === "experience" && !!item.shortDescription && !!item.summary;
+  const view = hasDetail ? patchNotesView : "main";
+
   return (
-    <div className="space-y-2" style={{ opacity }}>
-      <div>
-        {item.primaryUrl ? (
-          <a
-            href={item.primaryUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm font-mono font-bold hover:underline underline-offset-2 block"
-            style={{ color: item.color }}
+    <div className="flex-1 min-h-0 relative overflow-hidden" style={{ opacity }}>
+      <AnimatePresence initial={false} mode="wait">
+        {view === "main" ? (
+          <motion.div
+            key="main"
+            initial={{ x: "-100%", opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: "-100%", opacity: 0 }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            className="absolute inset-0 overflow-y-auto space-y-2"
           >
-            {item.title}
-          </a>
+            <div className="text-[10px] font-mono text-muted mb-2 tracking-wider uppercase">
+              Patch Notes
+            </div>
+            <div>
+              {item.primaryUrl ? (
+                <a
+                  href={item.primaryUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-mono font-bold hover:underline underline-offset-2"
+                  style={{ color: item.color }}
+                >
+                  {item.title}
+                </a>
+              ) : (
+                <h3
+                  className="text-sm font-mono font-bold"
+                  style={{ color: item.color }}
+                >
+                  {item.title}
+                </h3>
+              )}
+              <p className="text-[11px] font-mono text-secondary">
+                {item.subtitle}
+                {item.shortDescription && (
+                  <> &middot; <span style={{ color: item.color, opacity: 0.75 }}>{item.shortDescription}</span></>
+                )}
+                {" "}&middot; {item.period}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-1">
+              {item.techStack.map((tech) => (
+                <span
+                  key={tech}
+                  className="px-1.5 py-0.5 text-[9px] font-mono rounded border"
+                  style={{
+                    color: item.color,
+                    borderColor: `${item.color}40`,
+                    backgroundColor: `${item.color}10`,
+                  }}
+                >
+                  {tech}
+                </span>
+              ))}
+            </div>
+
+            {!hasDetail && item.summary && item.achievements.length === 0 && (
+              <p className="text-[10px] md:text-[11px] font-mono text-secondary/60 italic">
+                {item.summary}
+              </p>
+            )}
+
+            <ul className="space-y-1">
+              {item.achievements.map((ach, i) => (
+                <li
+                  key={i}
+                  className="text-[10px] md:text-[11px] font-mono text-secondary leading-relaxed flex gap-1.5"
+                >
+                  <span className="text-muted shrink-0">&rsaquo;</span>
+                  <span>{ach}</span>
+                </li>
+              ))}
+            </ul>
+
+          </motion.div>
         ) : (
-          <h3
-            className="text-sm font-mono font-bold"
-            style={{ color: item.color }}
+          <motion.div
+            key="detail"
+            initial={{ x: "100%", opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: "100%", opacity: 0 }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            className="absolute inset-0 overflow-y-auto flex flex-col gap-2"
           >
-            {item.title}
-          </h3>
-        )}
-        <p className="text-[11px] font-mono text-secondary">
-          {item.subtitle} &middot; {item.period}
-        </p>
-      </div>
+            {/* Back button */}
+            <button
+              onClick={() => setPatchNotesView("main")}
+              className="flex items-center gap-1 text-[9px] font-mono text-muted hover:text-secondary transition-colors self-start"
+            >
+              <span>←</span>
+              <span>{item.subtitle}</span>
+            </button>
 
-      <div className="flex flex-wrap gap-1">
-        {item.techStack.map((tech) => (
-          <span
-            key={tech}
-            className="px-1.5 py-0.5 text-[9px] font-mono rounded border"
-            style={{
-              color: item.color,
-              borderColor: `${item.color}40`,
-              backgroundColor: `${item.color}10`,
-            }}
-          >
-            {tech}
-          </span>
-        ))}
-      </div>
-
-      {item.summary && item.achievements.length === 0 && (
-        <p className="text-[10px] md:text-[11px] font-mono text-secondary/60 italic">
-          {item.summary}
-        </p>
-      )}
-
-      <ul className="space-y-1">
-        {item.achievements.map((ach, i) => (
-          <li
-            key={i}
-            className="text-[10px] md:text-[11px] font-mono text-secondary leading-relaxed flex gap-1.5"
-          >
-            <span className="text-muted shrink-0">&rsaquo;</span>
-            <span>{ach}</span>
-          </li>
-        ))}
-      </ul>
-
-      {item.links && item.links.length > 0 && (
-        <div className="flex gap-2 pt-1">
-          {item.links.map((link) => (
-            <a
-              key={link.label}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[10px] font-mono underline underline-offset-2 transition-colors"
+            {/* Detail title */}
+            <h3
+              className="text-sm font-mono font-bold"
               style={{ color: item.color }}
             >
-              {link.label} &nearr;
-            </a>
-          ))}
-        </div>
-      )}
+              {item.shortDescription}
+            </h3>
+
+            {/* Full description */}
+            <p className="text-[10px] md:text-[11px] font-mono text-secondary/70 leading-relaxed">
+              <HighlightedText
+                text={item.summary ?? ""}
+                keywords={item.techStack}
+                color={item.color}
+              />
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
+  );
+}
+
+function HighlightedText({
+  text,
+  keywords,
+  color,
+}: {
+  text: string;
+  keywords: string[];
+  color: string;
+}) {
+  if (keywords.length === 0) return <>{text}</>;
+
+  const escaped = [...keywords]
+    .sort((a, b) => b.length - a.length)
+    .map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const regex = new RegExp(`(${escaped.join("|")})`, "gi");
+  const parts = text.split(regex);
+
+  return (
+    <>
+      {parts.map((part, i) => {
+        const isKeyword = keywords.some(
+          (k) => k.toLowerCase() === part.toLowerCase()
+        );
+        return isKeyword ? (
+          <span key={i} style={{ color, fontWeight: 600 }}>
+            {part}
+          </span>
+        ) : (
+          part
+        );
+      })}
+    </>
   );
 }

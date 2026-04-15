@@ -29,6 +29,7 @@ export interface TimelineItem {
   achievements: string[];
   links?: { label: string; url: string }[];
   summary?: string;
+  shortDescription?: string;
   primaryUrl?: string;
 }
 
@@ -111,10 +112,11 @@ export const timelineItems: TimelineItem[] = [
     color: "#00e5ff",
     glowClass: "glow-cyan",
     selectedGlowClass: "glow-selected-cyan",
-    techStack: ["Python", "SQL", "Snowflake", "dbt", "Airflow", "AWS"],
+    techStack: ["Python", "SQL", "Snowflake", "dbt", "Airflow", "AWS", "Hightouch", "Fivetran",],
     achievements: [],
     links: [{ label: "Company", url: "https://www.super.com" }],
-    summary: "Description coming soon.",
+    summary: "Intensive data analysis/debugging, including resolving data latency issues by navigating PayPal-Fivetran API usage limits. Developed end-to-end data pipelines using Snowflake, Airflow, and dbt, streamlining financial data between transactional event data and formal accounting records. Devised new business logic and created easy-to-use front ends to automate data ingestion/reporting for accounting teams while leveraging Hightouch for data activation. Gained deep expertise in automating complex money flows, ensuring high-integrity transitions from raw customer transactions to final audit-ready accounting entries.",
+    shortDescription: "Finance Automation.",
     primaryUrl: "https://www.super.com",
   },
   {
@@ -131,7 +133,7 @@ export const timelineItems: TimelineItem[] = [
     techStack: ["Python", "Pandas", "PyTorch"],
     achievements: [],
     links: [{ label: "Organization", url: "https://watai.ca" }],
-    summary: "Description coming soon.",
+    summary: "Collaborated in the development of an NLP-driven personalized journalling platform. This involved reseraching and benchmarking various LLMs and sentiment analysis models (such as those available on Hugging Face), developing a synthetic journal entry generator, and more.",
     primaryUrl: "https://watai.ca",
   },
   {
@@ -152,6 +154,23 @@ export const timelineItems: TimelineItem[] = [
     primaryUrl: "https://www.loblaw.ca",
   },
   // ── Track 2: Projects ──
+  {
+    id: "proj-pawgress",
+    track: "projects",
+    title: "PawGress",
+    subtitle: "Habit Tracker",
+    period: "Jan 2025",
+    span: 2,
+    col: 1,
+    color: "#b388ff",
+    glowClass: "glow-violet",
+    selectedGlowClass: "glow-selected-violet",
+    techStack: ["React Native", "TypeScript", "JavaScript", "Node.js"],
+    achievements: [
+      "Developed a gamified habit tracker with Cohere personalization + AsyncStorage.",
+    ],
+    primaryUrl: "#",
+  },
   {
     id: "proj-collabify",
     track: "projects",

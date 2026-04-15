@@ -4,12 +4,14 @@ export type PowerState = "off" | "booting" | "on";
 export type ScreenView = "home" | "workspace";
 export type TransportState = "stopped" | "playing" | "paused";
 export type RecordState = "idle" | "rendering" | "done";
+export type PatchNotesView = "main" | "detail";
 
 interface UIStore {
   powerState: PowerState;
   screenView: ScreenView;
   bootTarget: ScreenView;
   selectedItemId: string | null;
+  patchNotesView: PatchNotesView;
   expandedFolders: Record<string, boolean>;
 
   // Transport
@@ -35,6 +37,8 @@ interface UIStore {
   openWorkspaceFromHome: () => void;
   closeWorkspace: () => void;
   selectItem: (id: string | null) => void;
+  selectItemWithView: (id: string, openDetail?: boolean) => void;
+  setPatchNotesView: (v: PatchNotesView) => void;
   toggleFolder: (folderId: string) => void;
 
   // Transport actions
@@ -62,6 +66,7 @@ export const useUIStore = create<UIStore>((set, get) => ({
   screenView: "home",
   bootTarget: "home",
   selectedItemId: null,
+  patchNotesView: "main",
   expandedFolders: { languages: true, frameworks: false, devtools: false },
 
   transportState: "stopped",
@@ -107,6 +112,7 @@ export const useUIStore = create<UIStore>((set, get) => ({
       screenView: "home",
       bootTarget: "home",
       selectedItemId: null,
+      patchNotesView: "main",
       transportState: "stopped",
       playheadProgress: 0,
       activeItemIds: [],
@@ -116,7 +122,18 @@ export const useUIStore = create<UIStore>((set, get) => ({
     }),
 
   selectItem: (id) =>
-    set({ selectedItemId: id === get().selectedItemId ? null : id }),
+    set({ selectedItemId: id === get().selectedItemId ? null : id, patchNotesView: "main" }),
+
+  selectItemWithView: (id, openDetail = false) => {
+    const current = get();
+    const newId = id === current.selectedItemId ? null : id;
+    set({
+      selectedItemId: newId,
+      patchNotesView: newId !== null && openDetail ? "detail" : "main",
+    });
+  },
+
+  setPatchNotesView: (v) => set({ patchNotesView: v }),
 
   toggleFolder: (folderId) =>
     set((s) => ({
@@ -136,6 +153,7 @@ export const useUIStore = create<UIStore>((set, get) => ({
       activeItemIds: [],
       ledActiveTech: [],
       selectedItemId: null,
+      patchNotesView: "main",
     }),
   setPlayheadProgress: (p) => set({ playheadProgress: p }),
   setActiveItemIds: (ids) => set({ activeItemIds: ids }),
