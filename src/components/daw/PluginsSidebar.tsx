@@ -4,13 +4,41 @@ import { skillCategories, profile } from "@/lib/data/careerData";
 import { useUIStore } from "@/lib/store/uiStore";
 import { motion, AnimatePresence } from "framer-motion";
 
+const MIN_WIDTH = 144;
+const MAX_WIDTH = 400;
+
 export default function PluginsSidebar() {
   const expandedFolders = useUIStore((s) => s.expandedFolders);
   const toggleFolder = useUIStore((s) => s.toggleFolder);
   const ledActiveTech = useUIStore((s) => s.ledActiveTech);
+  const width = useUIStore((s) => s.sidebarWidth);
+  const setWidth = useUIStore((s) => s.setSidebarWidth);
+
+  const handleResizeMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startWidth = width;
+    const onMove = (ev: MouseEvent) => {
+      setWidth(Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, startWidth + ev.clientX - startX)));
+    };
+    const onUp = () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  };
 
   return (
-    <div className="w-48 md:w-56 shrink-0 bg-surface border-r border-grid flex flex-col">
+    <div className="shrink-0 bg-surface border-r border-grid flex flex-col relative" style={{ width }}>
+      {/* Horizontal resize handle */}
+      <div
+        className="absolute top-0 right-0 bottom-0 w-1 z-10 cursor-col-resize group"
+        onMouseDown={handleResizeMouseDown}
+      >
+        <div className="absolute inset-0 group-hover:bg-cyan/30 transition-colors" />
+      </div>
+
       {/* Header */}
       <div className="flex items-center gap-2 px-3 py-2 border-b border-grid">
         <span className="text-sm">&#128194;</span>
@@ -70,7 +98,7 @@ export default function PluginsSidebar() {
                             {skill.name}
                           </span>
                           <span
-                            className={`w-[4px] h-[4px] rounded-full shrink-0 ${
+                            className={`w-1 h-1 rounded-full shrink-0 ${
                               isActive ? "led-flicker" : ""
                             }`}
                             style={{

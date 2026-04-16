@@ -53,6 +53,24 @@ export default function BottomMixer() {
   const { items, hasOverlap } = useResolvedMixerItems();
   const crossfaderValue = useUIStore((s) => s.crossfaderValue);
   const setCrossfaderValue = useUIStore((s) => s.setCrossfaderValue);
+  const height = useUIStore((s) => s.mixerHeight);
+  const setHeight = useUIStore((s) => s.setMixerHeight);
+
+  const handleResizeMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const startY = e.clientY;
+    const startHeight = height;
+    const maxH = window.innerHeight - 48;
+    const onMove = (ev: MouseEvent) => {
+      setHeight(Math.max(96, Math.min(maxH, startHeight - (ev.clientY - startY))));
+    };
+    const onUp = () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  };
 
   const activeSegment = getActiveSegment(crossfaderValue, items.length);
   const displayItem = items[activeSegment] ?? null;
@@ -78,7 +96,15 @@ export default function BottomMixer() {
   }, [items]);
 
   return (
-    <div className="h-44 md:h-52 shrink-0 bg-surface border-t border-grid flex flex-col">
+    <div className="shrink-0 bg-surface border-t border-grid flex flex-col relative" style={{ height }}>
+      {/* Vertical resize handle */}
+      <div
+        className="absolute top-0 left-0 right-0 h-1 z-10 cursor-row-resize group"
+        onMouseDown={handleResizeMouseDown}
+      >
+        <div className="absolute inset-0 group-hover:bg-cyan/30 transition-colors" />
+      </div>
+
       <div className="flex flex-1 min-h-0">
         {/* EQ Rack */}
         <div className="w-1/2 md:w-2/5 border-r border-grid p-3 flex flex-col">

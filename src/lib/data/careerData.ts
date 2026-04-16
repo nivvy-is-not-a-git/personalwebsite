@@ -14,7 +14,7 @@ export interface SkillCategory {
 
 export interface TimelineItem {
   id: string;
-  track: "experience" | "projects";
+  track: "experience" | "projects" | "design-team";
   title: string;
   subtitle: string;
   period: string;
@@ -48,7 +48,7 @@ export const profile: ProfileInfo = {
   degree: "BASc",
   major: "Computer Engineering",
   graduationYear: "2029",
-  bpm: "202.4",
+  bpm: "130",
 };
 
 /* ── Skills (Plugins Browser) ── */
@@ -106,9 +106,9 @@ export const timelineItems: TimelineItem[] = [
     track: "experience",
     title: "Data Engineer",
     subtitle: "Super.com",
-    period: "Jan 2026 – Present",
-    span: 3,
-    col: 10,
+    period: "Jan 2026 – Apr 2026",
+    span: 4,
+    col: 13,
     color: "#00e5ff",
     glowClass: "glow-cyan",
     selectedGlowClass: "glow-selected-cyan",
@@ -121,12 +121,12 @@ export const timelineItems: TimelineItem[] = [
   },
   {
     id: "exp-watai",
-    track: "experience",
+    track: "design-team",
     title: "ML Engineer",
     subtitle: "WAT.ai",
     period: "Mar – Sep 2025",
-    span: 5,
-    col: 2,
+    span: 7,
+    col: 3,
     color: "#ff00ff",
     glowClass: "glow-magenta",
     selectedGlowClass: "glow-selected-magenta",
@@ -142,8 +142,8 @@ export const timelineItems: TimelineItem[] = [
     title: "Full Stack Engineer",
     subtitle: "Loblaw Companies",
     period: "May – Aug 2025",
-    span: 3,
-    col: 4,
+    span: 4,
+    col: 5,
     color: "#76ff03",
     glowClass: "glow-lime",
     selectedGlowClass: "glow-selected-lime",
@@ -179,7 +179,7 @@ export const timelineItems: TimelineItem[] = [
     subtitle: "Collaborative DJ",
     period: "Dec 2025",
     span: 2,
-    col: 8,
+    col: 12,
     color: "#ff9100",
     glowClass: "glow-orange",
     selectedGlowClass: "glow-selected-orange",
@@ -197,7 +197,7 @@ export const timelineItems: TimelineItem[] = [
     subtitle: "Disaster Response App",
     period: "Feb 2026",
     span: 2,
-    col: 11,
+    col: 14,
     color: "#ff4081",
     glowClass: "glow-pink",
     selectedGlowClass: "glow-selected-pink",

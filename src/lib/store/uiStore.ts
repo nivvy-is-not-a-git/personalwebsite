@@ -31,6 +31,10 @@ interface UIStore {
   // BPM
   bpm: number;
 
+  // Panel sizes
+  sidebarWidth: number;
+  mixerHeight: number;
+
   togglePower: () => void;
   setPowerState: (state: PowerState) => void;
   setScreenView: (view: ScreenView) => void;
@@ -59,10 +63,14 @@ interface UIStore {
 
   // BPM
   setBpm: (v: number) => void;
+
+  // Panel sizes
+  setSidebarWidth: (w: number) => void;
+  setMixerHeight: (h: number) => void;
 }
 
 export const useUIStore = create<UIStore>((set, get) => ({
-  powerState: "off",
+  powerState: "on",
   screenView: "home",
   bootTarget: "home",
   selectedItemId: null,
@@ -80,7 +88,10 @@ export const useUIStore = create<UIStore>((set, get) => ({
 
   crossfaderValue: 0.5,
 
-  bpm: 202.4,
+  bpm: 130,
+
+  sidebarWidth: 192,
+  mixerHeight: 176,
 
   togglePower: () => {
     const current = get().powerState;
@@ -154,6 +165,8 @@ export const useUIStore = create<UIStore>((set, get) => ({
       ledActiveTech: [],
       selectedItemId: null,
       patchNotesView: "main",
+      sidebarWidth: 192,
+      mixerHeight: 176,
     }),
   setPlayheadProgress: (p) => set({ playheadProgress: p }),
   setActiveItemIds: (ids) => set({ activeItemIds: ids }),
@@ -172,4 +185,8 @@ export const useUIStore = create<UIStore>((set, get) => ({
 
   // BPM
   setBpm: (v) => set({ bpm: Math.max(60, Math.min(999, v)) }),
+
+  // Panel sizes
+  setSidebarWidth: (w) => set({ sidebarWidth: w }),
+  setMixerHeight: (h) => set({ mixerHeight: h }),
 }));

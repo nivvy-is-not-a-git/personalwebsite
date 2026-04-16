@@ -5,17 +5,25 @@ import { timelineItems } from "@/lib/data/careerData";
 import { useUIStore } from "@/lib/store/uiStore";
 import { motion } from "framer-motion";
 
-const TOTAL_COLS = 12;
+const TOTAL_COLS = 16;       // Jan 2025 → Apr 2026, one column per month
 const BEATS_PER_COL = 4;
 const TOTAL_BEATS = TOTAL_COLS * BEATS_PER_COL;
 const TRACK_ROW_HEIGHT = 72;
 const FUTURE_TRACK_ROWS = 0;
-const FUTURE_COLS = Math.ceil(TOTAL_COLS / 2);
-const TOTAL_GRID_COLS = TOTAL_COLS + FUTURE_COLS;
+const FUTURE_COLS = 3;        // May, Jun, Jul 2026
+const TOTAL_GRID_COLS = TOTAL_COLS + FUTURE_COLS; // 19
 const PLAYABLE_GRID_RATIO = TOTAL_COLS / TOTAL_GRID_COLS;
 const MAX_SCRUB_PROGRESS = TOTAL_GRID_COLS / TOTAL_COLS;
 const PLAYBACK_END_COL = Math.max(...timelineItems.map((i) => i.col - 1 + i.span));
 const PLAYBACK_END = PLAYBACK_END_COL / TOTAL_COLS;
+
+// Ruler: col index 0 = Jan 2025, each step is exactly one month
+function colToMonthLabel(colIndex: number): string {
+  const d = new Date(2025, colIndex, 1);
+  const mon = d.toLocaleString("default", { month: "short" });
+  const yy = String(d.getFullYear()).slice(2);
+  return `${mon} '${yy}`;
+}
 const MONTH_TO_INDEX: Record<string, number> = {
   jan: 0,
   feb: 1,
@@ -51,13 +59,16 @@ export default function PlaylistTimeline() {
   const stop = useUIStore((s) => s.stop);
   const pause = useUIStore((s) => s.pause);
   const activeItemIds = useUIStore((s) => s.activeItemIds);
+  const crossfaderValue = useUIStore((s) => s.crossfaderValue);
   const setLedActiveTech = useUIStore((s) => s.setLedActiveTech);
 
   const sortedTimelineItems = useMemo(
     () =>
       [...timelineItems].sort((a, b) => {
-        if (a.track !== b.track)
-          return a.track === "experience" ? -1 : 1;
+        if (a.track !== b.track) {
+          const order = { "experience": 0, "design-team": 1, "projects": 2 };
+          return order[a.track] - order[b.track];
+        }
         const aStart = getTimelineStartTimestamp(a.period);
         const bStart = getTimelineStartTimestamp(b.period);
         if (aStart !== bStart) return bStart - aStart;
@@ -98,24 +109,20 @@ export default function PlaylistTimeline() {
   );
   resolveRef.current = resolveActiveItems;
 
-  // Derive LED tech: playhead items while playing, selected block when paused/stopped
+  // Derive LED tech: crossfader-selected item while active, selected block otherwise
   const prevTechKeyRef = useRef("");
   useEffect(() => {
     const techSet = new Set<string>();
 
-    if (transportState === "playing") {
-      for (const id of activeItemIds) {
-        const item = timelineItems.find((t) => t.id === id);
-        if (item) for (const tech of item.techStack) techSet.add(tech);
-      }
+    const n = activeItemIds.length;
+    if (n > 0) {
+      const displayedIdx = n > 1 ? Math.min(Math.floor(crossfaderValue * n), n - 1) : 0;
+      const displayedId = activeItemIds[displayedIdx];
+      const item = timelineItems.find((t) => t.id === displayedId);
+      if (item) for (const tech of item.techStack) techSet.add(tech);
     } else if (selectedItemId) {
       const sel = timelineItems.find((t) => t.id === selectedItemId);
       if (sel) for (const tech of sel.techStack) techSet.add(tech);
-    } else if (activeItemIds.length > 0) {
-      for (const id of activeItemIds) {
-        const item = timelineItems.find((t) => t.id === id);
-        if (item) for (const tech of item.techStack) techSet.add(tech);
-      }
     }
 
     const key = Array.from(techSet).sort().join(",");
@@ -123,7 +130,7 @@ export default function PlaylistTimeline() {
       prevTechKeyRef.current = key;
       setLedActiveTech(Array.from(techSet));
     }
-  }, [activeItemIds, selectedItemId, transportState, setLedActiveTech]);
+  }, [activeItemIds, crossfaderValue, selectedItemId, setLedActiveTech]);
 
   // Refresh active items immediately when mute state changes during playback
   useEffect(() => {
@@ -315,9 +322,11 @@ export default function PlaylistTimeline() {
       {/* The grid content column is the shared coordinate space for ruler + tracks + playhead */}
       <div className="flex-1 flex min-h-0">
         {/* Left gutter: ruler spacer + track labels */}
-        <div className="w-20 md:w-24 shrink-0 flex flex-col border-r border-grid">
+        <div className="shrink-0 w-max flex flex-col border-r border-grid" style={{ background: "#020204" }}>
           {/* Ruler gutter */}
-          <div className="h-6 shrink-0 border-b border-grid" />
+          <div className="h-6 shrink-0 border-b border-grid flex items-center px-2">
+            <span className="text-[8px] font-mono text-white/50 uppercase tracking-widest whitespace-nowrap">Experience</span>
+          </div>
 
           {/* Track labels — one per item, grouped by deck */}
           <div
@@ -331,6 +340,7 @@ export default function PlaylistTimeline() {
                 label={item.track === "projects" ? item.title : item.subtitle}
                 trackKey={item.id}
                 color={item.color}
+                track={item.track}
               />
             ))}
             {Array.from({ length: FUTURE_TRACK_ROWS }).map((_, i) => (
@@ -352,8 +362,8 @@ export default function PlaylistTimeline() {
           >
             {/* Ruler bar — scrub target */}
             <div
-              className="h-6 flex shrink-0 border-b border-grid relative"
-              style={{ cursor: "col-resize" }}
+              className="h-6 flex shrink-0 border-b border-grid sticky top-0 z-20"
+              style={{ cursor: "col-resize", background: "#06060a" }}
               onPointerDown={handleRulerPointerDown}
               onPointerMove={handleRulerPointerMove}
               onPointerUp={handlePointerUp}
@@ -365,7 +375,7 @@ export default function PlaylistTimeline() {
                   className="flex-1 border-r border-grid flex items-center justify-center"
                 >
                   <span className="text-[9px] font-mono text-white tabular-nums select-none">
-                    {i + 1}
+                    {colToMonthLabel(i)}
                   </span>
                 </div>
               ))}
@@ -442,38 +452,46 @@ function TrackLabel({
   label,
   trackKey,
   color,
+  track,
 }: {
   label: string;
   trackKey: string;
   color?: string;
+  track: "experience" | "projects" | "design-team";
 }) {
   const mutedTracks = useUIStore((s) => s.mutedTracks);
   const toggleMuteTrack = useUIStore((s) => s.toggleMuteTrack);
   const isMuted = !!mutedTracks[trackKey];
+  const typeLabel = track === "projects" ? "project" : track === "design-team" ? "design team" : "internship";
 
   return (
     <div
-      className="px-2 text-[10px] font-mono text-white border-b border-grid flex flex-col items-start justify-center gap-1 shrink-0"
+      className="px-2 text-xs font-mono text-white border-b border-grid flex flex-col items-start justify-center gap-1 shrink-0"
       style={{
         height: TRACK_ROW_HEIGHT,
         opacity: isMuted ? 0.35 : 1,
         transition: "opacity 0.3s",
       }}
     >
-      <span className="truncate w-full" style={color ? { color } : undefined}>
+      <span className="whitespace-nowrap" style={color ? { color } : undefined}>
         {label}
       </span>
-      <button
-        onClick={() => toggleMuteTrack(trackKey)}
-        className={`px-1 py-0.5 text-[8px] font-bold rounded border transition-colors ${
-          isMuted
-            ? "bg-led-red/20 border-led-red/50 text-led-red"
-            : "bg-transparent border-grid text-white hover:text-white hover:border-white"
-        }`}
-        aria-label={`${isMuted ? "Unmute" : "Mute"} ${label}`}
-      >
-        {isMuted ? "🔇" : "🔊"}
-      </button>
+      <div className="flex items-center gap-1.5">
+        <button
+          onClick={() => toggleMuteTrack(trackKey)}
+          className={`px-1 py-0.5 text-[8px] font-bold rounded border transition-colors ${
+            isMuted
+              ? "bg-led-red/20 border-led-red/50 text-led-red"
+              : "bg-transparent border-grid text-white hover:text-white hover:border-white"
+          }`}
+          aria-label={`${isMuted ? "Unmute" : "Mute"} ${label}`}
+        >
+          {isMuted ? "🔇" : "🔊"}
+        </button>
+        <span className="text-[7px] font-mono text-white whitespace-nowrap uppercase tracking-wide">
+          {typeLabel}
+        </span>
+      </div>
     </div>
   );
 }
@@ -493,26 +511,15 @@ function TrackContent({
   gridCols: number;
 }) {
   const mutedTracks = useUIStore((s) => s.mutedTracks);
+  const selectItemWithView = useUIStore((s) => s.selectItemWithView);
   const activeItemIds = useUIStore((s) => s.activeItemIds);
   const crossfaderValue = useUIStore((s) => s.crossfaderValue);
-  const selectItemWithView = useUIStore((s) => s.selectItemWithView);
   const isMuted = !!mutedTracks[trackKey];
 
-  const hasActiveOverlap = activeItemIds.length > 1;
-
   const itemId = items[0]?.id;
-  const itemIdx = activeItemIds.indexOf(itemId ?? "");
   const n = activeItemIds.length;
-
-  let crossfaderFavor = 0;
-  if (itemIdx >= 0 && n > 1) {
-    const segWidth = 1 / n;
-    const segCenter = (itemIdx + 0.5) * segWidth;
-    const dist = Math.abs(crossfaderValue - segCenter);
-    crossfaderFavor = Math.max(0, 1 - dist / segWidth);
-  } else if (itemIdx >= 0) {
-    crossfaderFavor = 1;
-  }
+  const displayedIdx = n > 1 ? Math.min(Math.floor(crossfaderValue * n), n - 1) : 0;
+  const isDisplayed = n > 0 && activeItemIds[displayedIdx] === itemId;
 
   return (
     <div
@@ -528,21 +535,9 @@ function TrackContent({
 
       {items.map((item) => {
         const isSelected = selectedItemId === item.id;
-        const isActive = activeItemIds.includes(item.id);
+        const isActive = isSelected || (activeItemIds.includes(item.id) && selectedItemId === null);
         const leftPct = ((item.col - 1) / TOTAL_GRID_COLS) * 100;
         const widthPct = (item.span / TOTAL_GRID_COLS) * 100;
-
-        const glowIntensity =
-          isActive && hasActiveOverlap
-            ? Math.pow(crossfaderFavor, 1.8)
-            : isActive ? 1 : 0;
-
-        const bgAlpha = Math.round(10 + glowIntensity * 55).toString(16).padStart(2, "0");
-        const borderAlpha = Math.round(35 + glowIntensity * 130).toString(16).padStart(2, "0");
-        const glowOuterAlpha = Math.round(glowIntensity * 70).toString(16).padStart(2, "0");
-        const glowInnerAlpha = Math.round(glowIntensity * 30).toString(16).padStart(2, "0");
-        const glowSpread = Math.round(4 + glowIntensity * 20);
-        const insetSpread = Math.round(2 + glowIntensity * 12);
 
         return (
           <motion.button
@@ -557,37 +552,22 @@ function TrackContent({
               left: `${leftPct}%`,
               width: `${widthPct}%`,
               minWidth: "max-content",
-              backgroundColor: isActive
-                ? `${item.color}${bgAlpha}`
-                : isSelected
-                  ? `${item.color}30`
-                  : `${item.color}18`,
-              borderColor: isActive
-                ? `${item.color}${borderAlpha}`
-                : isSelected
-                  ? `${item.color}80`
-                  : `${item.color}40`,
-              boxShadow: isActive
-                ? `0 0 ${glowSpread}px ${item.color}${glowOuterAlpha}, inset 0 0 ${insetSpread}px ${item.color}${glowInnerAlpha}`
-                : "none",
-              transition:
-                "background-color 0.15s, border-color 0.15s, box-shadow 0.2s, opacity 0.15s",
+              backgroundColor: isActive ? `${item.color}28` : isSelected ? `${item.color}30` : `${item.color}18`,
+              borderColor: isActive ? `${item.color}cc` : isSelected ? `${item.color}80` : `${item.color}40`,
+              boxShadow: isActive ? `0 0 10px ${item.color}60, inset 0 0 6px ${item.color}30` : "none",
+              transition: "background-color 0.15s, border-color 0.15s, box-shadow 0.2s",
             }}
             whileHover={{
               backgroundColor: `${item.color}28`,
               borderColor: `${item.color}60`,
             }}
+            animate={{ scale: isDisplayed ? 1.05 : 1 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
             whileTap={{ scale: 0.98 }}
             aria-label={`${item.title} at ${item.subtitle}`}
           >
             <div className="px-2 py-1 overflow-hidden h-full flex flex-col justify-center">
-              <div
-                className="text-[10px] md:text-[11px] font-mono font-bold truncate"
-                style={{
-                  opacity: isActive && hasActiveOverlap ? 0.4 + glowIntensity * 0.6 : 1,
-                  transition: "opacity 0.15s",
-                }}
-              >
+              <div className="text-[10px] md:text-[11px] font-mono font-bold truncate">
                 {item.primaryUrl ? (
                   <span
                     className="hover:underline underline-offset-2 cursor-pointer"
@@ -605,11 +585,7 @@ function TrackContent({
               </div>
               <div
                 className="text-[9px] font-mono truncate"
-                style={{
-                  color: item.color,
-                  opacity: isActive && hasActiveOverlap ? 0.2 + glowIntensity * 0.6 : 0.8,
-                  transition: "opacity 0.15s",
-                }}
+                style={{ color: item.color, opacity: 0.8 }}
               >
                 {item.subtitle} &middot; {item.period}
               </div>

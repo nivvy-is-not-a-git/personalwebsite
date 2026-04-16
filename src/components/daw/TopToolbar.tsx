@@ -42,12 +42,7 @@ export default function TopToolbar() {
       setRecordProgress(1);
       setRecordState("done");
 
-      const link = document.createElement("a");
-      link.href = "/resume-placeholder.pdf";
-      link.download = "Avin_Shetty_Resume.pdf";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      window.open("/AS_Software_Resume.pdf", "_blank", "noopener,noreferrer");
 
       setTimeout(() => {
         setRecordState("idle");
@@ -207,16 +202,19 @@ function BPMDisplay() {
   );
 }
 
-const READOUT_COLS = 12;
-const READOUT_TOTAL_COLS = READOUT_COLS + Math.ceil(READOUT_COLS / 2);
+// One column = one month; col 0 = Jan 2025, col 15 = Apr 2026
+const TIMELINE_START_YEAR = 2025;
+const TIMELINE_START_MONTH = 0; // January
+const TIMELINE_TOTAL_MONTHS = 16; // 16 playable months (Jan 2025 → Apr 2026)
 
 function PlayheadReadout() {
   const progress = useUIStore((s) => s.playheadProgress);
-  const bar = Math.floor(progress * READOUT_COLS) + 1;
-  const beat = Math.floor((progress * READOUT_COLS * 4) % 4) + 1;
+  const monthOffset = Math.floor(progress * TIMELINE_TOTAL_MONTHS);
+  const date = new Date(TIMELINE_START_YEAR, TIMELINE_START_MONTH + monthOffset, 1);
+  const label = date.toLocaleString("default", { month: "short", year: "numeric" });
   return (
-    <span className="text-lime tabular-nums font-bold">
-      {String(Math.min(bar, READOUT_TOTAL_COLS)).padStart(2, "0")}:{beat}
+    <span className="text-lime tabular-nums font-bold tracking-wide">
+      {label}
     </span>
   );
 }
