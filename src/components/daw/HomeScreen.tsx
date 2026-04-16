@@ -201,7 +201,7 @@ export default function HomeScreen() {
           dragElastic={0}
           onDoubleClick={() => { if (!loading) setLoading(true); }}
           animate={{ scale: 1 }}
-          whileTap={false}
+
           className="absolute flex flex-col items-center gap-3 p-3 rounded-xl focus:outline-none hover:bg-elevated/50 transition-colors"
           style={{ top: 24, left: 24, cursor: "grab", touchAction: "none" }}
         >
