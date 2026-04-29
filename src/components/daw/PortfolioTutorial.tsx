@@ -306,7 +306,7 @@ export default function PortfolioTutorial() {
             Welcome to my portfolio!
           </h2>
           <p className="text-[11px] text-white/65 leading-relaxed">
-            This is built like a DAW — a music production workspace. Hit the
+            This is built like a Digital Audio Studio — a music production workspace. Hit the
             arrow for a quick intro to each section.
           </p>
 
