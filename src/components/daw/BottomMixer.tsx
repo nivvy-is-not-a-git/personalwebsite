@@ -20,8 +20,18 @@ function useResolvedMixerItems(): {
   const selectedItemId = useUIStore((s) => s.selectedItemId);
   const activeItemIds = useUIStore((s) => s.activeItemIds);
   const transportState = useUIStore((s) => s.transportState);
+  const tutorialCrossfaderForced = useUIStore((s) => s.tutorialCrossfaderForced);
 
   return useMemo(() => {
+    // Tutorial step 4: force crossfader visible with first two items as demo
+    if (tutorialCrossfaderForced) {
+      const natural = activeItemIds
+        .map((id) => timelineItems.find((t) => t.id === id))
+        .filter(Boolean) as TimelineItem[];
+      const items = natural.length >= 2 ? natural : timelineItems.slice(0, 2);
+      return { items, hasOverlap: true };
+    }
+
     // When paused, prefer manually selected item so any clicked track is inspectable
     if (transportState === "paused" && selectedItemId) {
       const sel = timelineItems.find((i) => i.id === selectedItemId) ?? null;
@@ -37,7 +47,7 @@ function useResolvedMixerItems(): {
 
     const sel = timelineItems.find((i) => i.id === selectedItemId) ?? null;
     return { items: sel ? [sel] : [], hasOverlap: false };
-  }, [selectedItemId, activeItemIds, transportState]);
+  }, [selectedItemId, activeItemIds, transportState, tutorialCrossfaderForced]);
 }
 
 function getActiveSegment(value: number, count: number): number {
@@ -96,7 +106,7 @@ export default function BottomMixer() {
   }, [items]);
 
   return (
-    <div className="shrink-0 bg-surface border-t border-grid flex flex-col relative" style={{ height }}>
+    <div data-tutorial="bottom-panel" className="shrink-0 bg-surface border-t border-grid flex flex-col relative" style={{ height }}>
       {/* Vertical resize handle */}
       <div
         className="absolute top-0 left-0 right-0 h-1 z-10 cursor-row-resize group"
@@ -107,7 +117,7 @@ export default function BottomMixer() {
 
       <div className="flex flex-1 min-h-0">
         {/* EQ Rack */}
-        <div className="w-1/2 md:w-2/5 border-r border-grid p-3 flex flex-col">
+        <div data-tutorial="eq-rack" className="w-1/2 md:w-2/5 border-r border-grid p-3 flex flex-col">
           <div className="text-[10px] font-mono text-white mb-2 tracking-wider uppercase">
             EQ Rack
           </div>
@@ -124,7 +134,8 @@ export default function BottomMixer() {
         </div>
       </div>
 
-      {/* Crossfader — only visible during overlap */}
+      {/* Crossfader — only visible during overlap; wrapper always in DOM for tutorial targeting */}
+      <div data-tutorial="crossfader-zone" className="shrink-0">
       <AnimatePresence>
         {hasOverlap && (
           <motion.div
@@ -185,6 +196,7 @@ export default function BottomMixer() {
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
     </div>
   );
 }

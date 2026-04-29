@@ -35,6 +35,12 @@ interface UIStore {
   sidebarWidth: number;
   mixerHeight: number;
 
+  // Tutorial
+  tutorialTrigger: number; // incremented each time the tutorial should (re)open
+  openTutorial: () => void;
+  tutorialCrossfaderForced: boolean;
+  setTutorialCrossfaderForced: (v: boolean) => void;
+
   togglePower: () => void;
   setPowerState: (state: PowerState) => void;
   setScreenView: (view: ScreenView) => void;
@@ -92,6 +98,9 @@ export const useUIStore = create<UIStore>((set, get) => ({
 
   sidebarWidth: 192,
   mixerHeight: 176,
+
+  tutorialTrigger: 0,
+  tutorialCrossfaderForced: false,
 
   togglePower: () => {
     const current = get().powerState;
@@ -189,4 +198,8 @@ export const useUIStore = create<UIStore>((set, get) => ({
   // Panel sizes
   setSidebarWidth: (w) => set({ sidebarWidth: w }),
   setMixerHeight: (h) => set({ mixerHeight: h }),
+
+  // Tutorial
+  openTutorial: () => set((s) => ({ tutorialTrigger: s.tutorialTrigger + 1 })),
+  setTutorialCrossfaderForced: (v) => set({ tutorialCrossfaderForced: v }),
 }));
