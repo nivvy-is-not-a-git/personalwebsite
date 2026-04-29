@@ -7,6 +7,7 @@ import TopToolbar from "./TopToolbar";
 import PluginsSidebar from "./PluginsSidebar";
 import PlaylistTimeline from "./PlaylistTimeline";
 import BottomMixer from "./BottomMixer";
+import PortfolioTutorial from "./PortfolioTutorial";
 
 gsap.registerPlugin(useGSAP);
 
@@ -44,6 +45,9 @@ export default function DAWWorkspace() {
 
       {/* Bottom Mixer */}
       <BottomMixer />
+
+      {/* First-visit tutorial overlay */}
+      <PortfolioTutorial />
     </div>
   );
 }

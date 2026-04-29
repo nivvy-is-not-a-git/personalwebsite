@@ -11,6 +11,7 @@ export default function TopToolbar() {
   const stop = useUIStore((s) => s.stop);
 
   const closeWorkspace = useUIStore((s) => s.closeWorkspace);
+  const openTutorial = useUIStore((s) => s.openTutorial);
 
   const recordState = useUIStore((s) => s.recordState);
   const recordProgress = useUIStore((s) => s.recordProgress);
@@ -93,8 +94,12 @@ export default function TopToolbar() {
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-1.5">
           <TransportButton icon="stop" onClick={stop} active={transportState === "stopped"} />
-          <TransportButton icon={transportState === "playing" ? "pause" : "play"} onClick={handlePlay} active={transportState === "playing" || transportState === "paused"} />
-          <RecordButton onClick={handleRecord} recordState={recordState} />
+          <div data-tutorial="play-button">
+            <TransportButton icon={transportState === "playing" ? "pause" : "play"} onClick={handlePlay} active={transportState === "playing" || transportState === "paused"} />
+          </div>
+          <div data-tutorial="record-button">
+            <RecordButton onClick={handleRecord} recordState={recordState} />
+          </div>
         </div>
 
         <AnimatePresence>
@@ -119,8 +124,18 @@ export default function TopToolbar() {
         </AnimatePresence>
       </div>
 
-      {/* Right: Editable BPM display */}
-      <BPMDisplay />
+      {/* Right: Tutorial button + BPM display */}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={openTutorial}
+          aria-label="Open tutorial"
+          title="Tutorial"
+          className="w-6 h-6 flex items-center justify-center rounded-full border border-grid text-muted hover:border-cyan/50 hover:text-cyan transition-all font-mono text-[11px] font-bold"
+        >
+          ?
+        </button>
+        <BPMDisplay />
+      </div>
     </div>
   );
 }

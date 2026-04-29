@@ -30,7 +30,7 @@ export default function PluginsSidebar() {
   };
 
   return (
-    <div className="shrink-0 bg-surface border-r border-grid flex flex-col relative" style={{ width }}>
+    <div data-tutorial="plugins-panel" className="shrink-0 bg-surface border-r border-grid flex flex-col relative" style={{ width }}>
       {/* Horizontal resize handle */}
       <div
         className="absolute top-0 right-0 bottom-0 w-1 z-10 cursor-col-resize group"
@@ -98,6 +98,7 @@ export default function PluginsSidebar() {
                             {skill.name}
                           </span>
                           <span
+                            data-tutorial-id="skill-led"
                             className={`w-1 h-1 rounded-full shrink-0 ${
                               isActive ? "led-flicker" : ""
                             }`}

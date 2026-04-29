@@ -209,6 +209,18 @@ body {
   animation: led-flicker 1.6s ease-in-out infinite;
 }
 
+/* ── Tutorial LED Flash (portfolio tutorial step 1) ── */
+@keyframes tutorial-led-flash {
+  0%, 24%   { background-color: var(--color-led-green); box-shadow: 0 0 4px var(--color-led-green), 0 0 8px rgba(0,230,118,0.4); opacity: 1; }
+  25%, 49%  { background-color: var(--color-led-red); box-shadow: 0 0 3px rgba(255,23,68,0.3); opacity: 0.7; }
+  50%, 74%  { background-color: var(--color-led-green); box-shadow: 0 0 4px var(--color-led-green), 0 0 8px rgba(0,230,118,0.4); opacity: 1; }
+  75%, 100% { background-color: var(--color-led-red); box-shadow: 0 0 3px rgba(255,23,68,0.3); opacity: 0.7; }
+}
+
+.tutorial-led-active [data-tutorial-id="skill-led"] {
+  animation: tutorial-led-flash 0.5s step-start infinite !important;
+}
+
 /* ── Reduced Motion ── */
 @media (prefers-reduced-motion: reduce) {
   *,
