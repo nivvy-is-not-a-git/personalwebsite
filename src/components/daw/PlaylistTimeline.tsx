@@ -147,7 +147,9 @@ export default function PlaylistTimeline() {
       return;
     }
 
-    const secondsPerBeat = 60 / bpm;
+    const baseBpm = 130;
+    const speedMultiplier = Math.pow(bpm / baseBpm, 2);
+    const secondsPerBeat = 60 / (baseBpm * speedMultiplier);
     const totalDuration = TOTAL_BEATS * secondsPerBeat * PLAYBACK_END;
 
     startTimeRef.current = performance.now();
